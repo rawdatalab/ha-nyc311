@@ -27,7 +27,7 @@ async def async_setup_entry(
     discovery_info: DiscoveryInfoType | None = None,  # pylint: disable=unused-argument
 ) -> None:
     """Set up entities using the binary sensor platform from this config entry."""
-    coordinator: DataUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]
+    coordinator: DataUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
 
     # Add days ahead sensors. One sensor per service per day for 8 days = 24 sensors!
     async_add_entities(

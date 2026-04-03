@@ -1,9 +1,7 @@
 """The NYC 311 Public Services Calendar integration."""
 from __future__ import annotations
-
 from datetime import timedelta
 import logging
-
 import async_timeout
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -11,8 +9,8 @@ from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.helpers.event import async_track_time_change
 from nyc311calendar import NYC311API, CalendarType
-
 from .const import DOMAIN, INTEGRATION_NAME, STARTUP_MESSAGE
 
 log = logging.getLogger(__name__)
@@ -59,7 +57,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     )
 
     device_registry = dr.async_get(hass)
-
     device_registry.async_get_or_create(
         config_entry_id=entry.entry_id,
         identifiers={(DOMAIN, "NYC 311 Public API")},
@@ -70,8 +67,22 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Fetch initial data so we have data when entities subscribe
     await coordinator.async_config_entry_first_refresh()
 
-    # Store coordinator
-    hass.data[DOMAIN][entry.entry_id] = coordinator
+    # Add midnight refresh to update "today/tomorrow" sensor designations
+    async def midnight_refresh(now):
+        """Refresh coordinator at midnight to update sensor day designations."""
+        log.debug("Midnight refresh triggered for NYC311 sensors")
+        await coordinator.async_request_refresh()
+
+    # Trigger refresh at 00:01 every day
+    remove_listener = async_track_time_change(
+        hass, midnight_refresh, hour=0, minute=1, second=0
+    )
+
+    # Store coordinator and listener cleanup function
+    hass.data[DOMAIN][entry.entry_id] = {
+        "coordinator": coordinator,
+        "remove_listener": remove_listener,
+    }
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
@@ -82,6 +93,8 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     if unload_ok:
-        hass.data[DOMAIN].pop(entry.entry_id)
+        # Remove midnight listener
+        entry_data = hass.data[DOMAIN].pop(entry.entry_id)
+        entry_data["remove_listener"]()
 
     return bool(unload_ok)
