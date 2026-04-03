@@ -111,51 +111,55 @@ class Calendar(CalendarEntity, CoordinatorEntity):  # type: ignore
             GroupBy.SERVICE
         ][self._service]
 
-    @callback  # type: ignore
-    def _build_calendar(
-        self,
-        start_date: datetime.datetime | None = None,
-        end_date: datetime.datetime | None = None,
-        next_event: bool = False,
-    ) -> list[CalendarEvent] | CalendarEvent:
-        """Build HA-standard calendar."""
-        # next_event: if true, returns the next exception for this calendar. if false, returns all exceptions between start and end date, exclusive.
-        if (next_event and (start_date or end_date)) or (
-            bool(start_date) ^ bool(end_date)
-        ):
-            raise ValueError
+@callback  # type: ignore
+def _build_calendar(
+    self,
+    start_date: datetime.datetime | None = None,
+    end_date: datetime.datetime | None = None,
+    next_event: bool = False,
+) -> list[CalendarEvent] | CalendarEvent:
+    """Build HA-standard calendar."""
+    # next_event: if true, returns the next exception for this calendar. if false, returns all exceptions between start and end date, exclusive.
+    if (next_event and (start_date or end_date)) or (
+        bool(start_date) ^ bool(end_date)
+    ):
+        raise ValueError
 
-        calendar_events: list[CalendarEvent] = []
+    calendar_events: list[CalendarEvent] = []
+    today = datetime.now().date()
 
-        for date_ in sorted(self._calendar):
-            calendar_entry: CalendarDayEntry = self._calendar[date_]
-            if (
-                calendar_entry.status_profile.standardized_type
-                in [
-                    Service.StandardizedStatusType.NORMAL_ACTIVE,
-                    Service.StandardizedStatusType.NORMAL_SUSPENDED,
-                ]
-            ) or (
-                not next_event
-                and start_date
-                and end_date
-                and (
-                    (calendar_entry.date < start_date.date())
-                    or (calendar_entry.date > end_date.date())
-                )
-            ):
-                continue
-
-            calendar_event = CalendarEvent(
-                start=calendar_entry.date,
-                end=calendar_entry.date,
-                summary=calendar_entry.exception_summary,
-                description=calendar_entry.raw_description,
+    for date_ in sorted(self._calendar):
+        calendar_entry: CalendarDayEntry = self._calendar[date_]
+        if (
+            calendar_entry.status_profile.standardized_type
+            in [
+                Service.StandardizedStatusType.NORMAL_ACTIVE,
+                Service.StandardizedStatusType.NORMAL_SUSPENDED,
+            ]
+        ) or (
+            not next_event
+            and start_date
+            and end_date
+            and (
+                (calendar_entry.date < start_date.date())
+                or (calendar_entry.date > end_date.date())
             )
+        ) or (
+            # Skip past events when looking for next event
+            next_event and calendar_entry.date < today
+        ):
+            continue
 
-            if next_event:
-                return calendar_event
+        calendar_event = CalendarEvent(
+            start=calendar_entry.date,
+            end=calendar_entry.date,
+            summary=calendar_entry.exception_summary,
+            description=calendar_entry.raw_description,
+        )
 
-            calendar_events.append(calendar_event)
+        if next_event:
+            return calendar_event
 
-        return calendar_events
+        calendar_events.append(calendar_event)
+
+    return calendar_events
