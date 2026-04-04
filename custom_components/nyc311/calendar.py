@@ -14,6 +14,7 @@ from homeassistant.helpers.update_coordinator import (
     CoordinatorEntity,
     DataUpdateCoordinator,
 )
+from homeassistant.util import dt as dt_util
 from nyc311calendar import CalendarDayEntry, CalendarType, GroupBy
 from nyc311calendar.services import Service, ServiceType
 
@@ -122,7 +123,7 @@ class Calendar(CalendarEntity, CoordinatorEntity):
             raise ValueError("Inconsistent date arguments provided")
 
         calendar_events: list[CalendarEvent] = []
-        today = datetime.datetime.now().date()
+        today = dt_util.now().date()
 
         for date_ in sorted(self._calendar):
             calendar_entry: CalendarDayEntry = self._calendar[date_]
