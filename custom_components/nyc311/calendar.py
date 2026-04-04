@@ -127,13 +127,13 @@ class Calendar(CalendarEntity, CoordinatorEntity):
 
         for date_ in sorted(self._calendar):
             calendar_entry: CalendarDayEntry = self._calendar[date_]
-            
+
             # Filter logic
             is_normal_status = calendar_entry.status_profile.standardized_type in [
                 Service.StandardizedStatusType.NORMAL_ACTIVE,
                 Service.StandardizedStatusType.NORMAL_SUSPENDED,
             ]
-            
+
             out_of_range = (
                 not next_event
                 and start_date
