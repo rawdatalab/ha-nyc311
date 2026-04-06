@@ -98,20 +98,20 @@ class Calendar(CalendarEntity, CoordinatorEntity):  # type: ignore[misc]
         await super().async_added_to_hass()
         self.update_device_data()
 
-    @callback # type: ignore[misc]
+    @callback  # type: ignore[misc]
     def _handle_coordinator_update(self) -> None:
         """Update the entity with new REST API data."""
         self.update_device_data()
         self.async_write_ha_state()
 
-    @callback # type: ignore[misc]
+    @callback  # type: ignore[misc]
     def update_device_data(self) -> None:
         """Update the entity when new data comes from the API."""
         self._calendar = self.coordinator.data[CalendarType.QUARTER_AHEAD][
             GroupBy.SERVICE
         ][self._service]
 
-    @callback # type: ignore[misc]
+    @callback  # type: ignore[misc]
     def _build_calendar(
         self,
         start_date: datetime.datetime | None = None,
