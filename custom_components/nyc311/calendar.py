@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import datetime
 import logging
+from typing import TYPE_CHECKING
 
 from homeassistant import core
 from homeassistant.components.calendar import CalendarEntity, CalendarEvent
@@ -45,14 +46,14 @@ async def async_setup_entry(
     )
 
 
-class Calendar(CalendarEntity, CoordinatorEntity):
+class Calendar(CalendarEntity, CoordinatorEntity):  # type: ignore[misc]
     """Calendar created on a per-service basis."""
 
     def __init__(
         self,
         coordinator: DataUpdateCoordinator,
         service: ServiceType,
-    ):
+    ) -> None:
         """Initialize calendar."""
         super().__init__(coordinator)
 
@@ -127,13 +128,13 @@ class Calendar(CalendarEntity, CoordinatorEntity):
 
         for date_ in sorted(self._calendar):
             calendar_entry: CalendarDayEntry = self._calendar[date_]
-
+            
             # Filter logic
             is_normal_status = calendar_entry.status_profile.standardized_type in [
                 Service.StandardizedStatusType.NORMAL_ACTIVE,
                 Service.StandardizedStatusType.NORMAL_SUSPENDED,
             ]
-
+            
             out_of_range = (
                 not next_event
                 and start_date
