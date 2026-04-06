@@ -1,6 +1,6 @@
 """The NYC 311 Public Services Calendar integration."""
 from __future__ import annotations
-from datetime import timedelta
+from datetime import datetime, timedelta
 import logging
 import async_timeout
 from homeassistant.config_entries import ConfigEntry
@@ -68,7 +68,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await coordinator.async_config_entry_first_refresh()
 
     # Add midnight refresh to update "today/tomorrow" sensor designations
-    async def midnight_refresh(now):
+    async def midnight_refresh(now: datetime) -> None:
         """Refresh coordinator at midnight to update sensor day designations."""
         log.debug("Midnight refresh triggered for NYC311 sensors")
         await coordinator.async_request_refresh()
