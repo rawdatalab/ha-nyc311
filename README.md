@@ -3,7 +3,7 @@
 <h3 align="center">Home Assistant integration for New York City trash collection, school, and alternate side parking schedules.</h3>
 
 > **📢 Community Maintained Fork**
-> 
+>
 > This is a community-maintained fork of the [original NYC 311 integration](https://github.com/elahd/ha-nyc311) by [@elahd](https://github.com/elahd). The original repository has not been updated since 2023. This fork includes bug fixes and compatibility updates for current versions of Home Assistant.
 >
 > **Installation:** Use this repository URL in HACS as a custom repository, or install directly if added to HACS default repositories.
