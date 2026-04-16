@@ -1,4 +1,6 @@
-# [Unreleased]
+# Changelog
+
+## [Unreleased]
 
 ### Fixed
 
@@ -8,7 +10,7 @@
 
 - Dependency version updates
 
-## Previous Versions
+### Previous Versions
 
-See [original repository](https://github.com/elahd/ha-nyc311)
+See [original repository](https://github.com/elahd/ha-nyc311) 
 for changelog prior to fork.
