@@ -56,8 +56,6 @@ repos:
         args: ["--fix=lf"]
       - id: check-json
         exclude: (.vscode|.devcontainer)
-      - id: check-yaml
-        exclude: ^\.codacy\.yml$
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.11.2  # Update to newer version
     hooks:
