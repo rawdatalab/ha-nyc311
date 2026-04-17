@@ -20,6 +20,8 @@ from nyc311calendar.services import Service, ServiceType
 
 from .const import DOMAIN
 
+from homeassistant.util import dt as dt_util
+
 _LOGGER = logging.getLogger(__name__)
 
 
